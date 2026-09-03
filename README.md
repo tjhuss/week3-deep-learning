@@ -18,6 +18,7 @@ pip install -r requirements.txt
 | --- | --- |
 | `day1/` | `day1_neuron.ipynb` -- a single neuron built from scratch with NumPy: forward pass, MSE loss, manually-derived gradients, and a gradient descent training loop |
 | `day2/` | `day2_activations.ipynb` -- Sigmoid/Tanh/ReLU/Softmax implemented and visualized by hand, a small 2-layer network learning `y = x^2`, and plain gradient descent vs. Adam compared on the same network |
+| `day3/` | `day3_ann.ipynb` -- a full 3-layer ANN (batchnorm, dropout, early stopping, Adam) built from scratch, trained on the real Week 2 news dataset and compared against the classical ML results |
 
 ## Day 1: Deep Learning Fundamentals
 
@@ -55,3 +56,25 @@ faster (down to 0.0634 by epoch 1000, barely moving after) and finished
 slightly lower overall (0.0565 vs. 0.0650), though both leveled off near
 the same floor -- a reminder that the optimizer speeds up training, but
 can't exceed the model's own capacity limit.
+
+## Day 3: ANN for Structured/Text Data
+
+`day3/day3_ann.ipynb` is the real one -- a 3-layer network (649 input
+features -> 32 hidden with batchnorm+relu+dropout -> 16 hidden with relu
+-> 6 output classes with softmax) trained on the actual Week 2 news
+dataset, not a toy example. New stuff in this one: batch normalization,
+dropout, early stopping, and cross-entropy loss, all still hand-coded with
+NumPy, no framework yet.
+
+Test accuracy came out to 39%, which is worse than every classical model
+from Week 2 (Decision Tree and Gradient Boosting both hit 70%). Not a bug
+-- the network has around 21,500 learnable parameters but only 70 actual
+training rows after splitting off validation data, which is way too much
+model for way too little data. Training loss dropped to nearly 0 (fully
+memorized the training set) while validation loss got worse the longer it
+trained -- classic overfitting, confirmed by testing it again with 5x more
+patience for early stopping and getting the exact same result. This ties
+back to two things from Week 2 (XGBoost losing to plain Gradient Boosting,
+`RandomizedSearchCV` picking a worse model than `GridSearchCV`): more
+advanced tooling doesn't automatically win, especially on a dataset this
+small.
