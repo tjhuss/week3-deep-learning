@@ -20,6 +20,8 @@ pip install -r requirements.txt
 | `day2/` | `day2_activations.ipynb` -- Sigmoid/Tanh/ReLU/Softmax implemented and visualized by hand, a small 2-layer network learning `y = x^2`, and plain gradient descent vs. Adam compared on the same network |
 | `day3/` | `day3_ann.ipynb` -- a full 3-layer ANN (batchnorm, dropout, early stopping, Adam) built from scratch, trained on the real Week 2 news dataset and compared against the classical ML results |
 | `day4/` | `day4_pytorch.ipynb` -- the same network rebuilt in PyTorch (Dataset/DataLoader, nn.Module, autograd, saved weights) instead of hand-written NumPy |
+| `data/` | `news_dataset.csv` -- the shared, growing news dataset used from Day 5 onward (Days 1-4 each used their own fixed snapshot, see below) |
+| `scripts/` | `grow_dataset.py` -- re-scrapes all 4 sources and merges any new headlines into `data/news_dataset.csv`, for growing the dataset further in future sessions |
 
 ## Day 1: Deep Learning Fundamentals
 
@@ -99,3 +101,29 @@ overfitting story as Day 3, framework or not. Also hit a real PyTorch
 gotcha here: forgetting `torch.manual_seed(42)` meant every run gave a
 different accuracy (52%, then 43%, same code) since PyTorch has its own
 separate random number generator that NumPy's seed doesn't control.
+
+## Growing the dataset (before Day 5)
+
+Days 1-4 all used the original 111-row news dataset from Week 2, and
+those notebooks are left exactly as they were built. Starting with Day 5,
+a bigger, shared dataset lives in `data/news_dataset.csv` instead.
+
+`scripts/grow_dataset.py` re-scrapes the original 3 sources (fool.com,
+tradingview.com, marketscreener.com) plus a new one added specifically to
+help the sparsest category, Health: `finance.yahoo.com/sectors/healthcare/`.
+Since news sites fully refresh their front pages, re-running the original
+3 scrapers picked up 155 entirely new headlines with zero URL overlap,
+taking the dataset from 111 to 266 rows. Adding Yahoo Finance's healthcare
+page brought in 12 more (278 total), though only 2 initially classified as
+Health -- most of those headlines reference specific companies (AbbVie,
+Boston Scientific, NeuroPace) rather than medical terminology, which the
+original keyword-based classifier didn't recognize. Adding known
+biotech/pharma/medtech company names to the Health keyword list fixed
+this, bringing Health from 2 up to 12 total examples.
+
+Current totals: **278 rows** (Business 109, Markets 88, Technology 49,
+Health 12, Energy 11, Politics 9). Health is still thin and will likely
+remain the hardest category, but this is meant to keep growing over future
+sessions -- the target is ~400 rows before Week 4 starts. Run
+`scripts/grow_dataset.py` again (from inside `scripts/`) any time to pull
+in whatever's new since the last run.
