@@ -19,6 +19,7 @@ pip install -r requirements.txt
 | `day1/` | `day1_neuron.ipynb` -- a single neuron built from scratch with NumPy: forward pass, MSE loss, manually-derived gradients, and a gradient descent training loop |
 | `day2/` | `day2_activations.ipynb` -- Sigmoid/Tanh/ReLU/Softmax implemented and visualized by hand, a small 2-layer network learning `y = x^2`, and plain gradient descent vs. Adam compared on the same network |
 | `day3/` | `day3_ann.ipynb` -- a full 3-layer ANN (batchnorm, dropout, early stopping, Adam) built from scratch, trained on the real Week 2 news dataset and compared against the classical ML results |
+| `day4/` | `day4_pytorch.ipynb` -- the same network rebuilt in PyTorch (Dataset/DataLoader, nn.Module, autograd, saved weights) instead of hand-written NumPy |
 
 ## Day 1: Deep Learning Fundamentals
 
@@ -78,3 +79,23 @@ back to two things from Week 2 (XGBoost losing to plain Gradient Boosting,
 `RandomizedSearchCV` picking a worse model than `GridSearchCV`): more
 advanced tooling doesn't automatically win, especially on a dataset this
 small.
+
+## Day 4: PyTorch Training Workflow
+
+`day4/day4_pytorch.ipynb` rebuilds the exact same architecture from Day 3,
+except with real PyTorch layers (`nn.Linear`, `nn.BatchNorm1d`, etc.)
+instead of hand-written weight matrices, `Dataset`/`DataLoader` for
+mini-batch training instead of full-batch, and autograd (`loss.backward()`,
+`optimizer.step()`) instead of a hand-derived backward pass. Trained
+weights get saved to `news_classifier_weights.pth`.
+
+Test accuracy came out to 52%, better than Day 3's from-scratch result
+(39%) but still below every classical model from Week 2 (61-70%). Best
+guess for the improvement: this run trains on all 88 rows directly (no
+validation split carved out) and uses mini-batches instead of one
+full-batch update per epoch, so more individual gradient updates happen
+per epoch. Training loss still collapsed to near 0 though -- same
+overfitting story as Day 3, framework or not. Also hit a real PyTorch
+gotcha here: forgetting `torch.manual_seed(42)` meant every run gave a
+different accuracy (52%, then 43%, same code) since PyTorch has its own
+separate random number generator that NumPy's seed doesn't control.
