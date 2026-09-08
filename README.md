@@ -20,6 +20,7 @@ pip install -r requirements.txt
 | `day2/` | `day2_activations.ipynb` -- Sigmoid/Tanh/ReLU/Softmax implemented and visualized by hand, a small 2-layer network learning `y = x^2`, and plain gradient descent vs. Adam compared on the same network |
 | `day3/` | `day3_ann.ipynb` -- a full 3-layer ANN (batchnorm, dropout, early stopping, Adam) built from scratch, trained on the real Week 2 news dataset and compared against the classical ML results |
 | `day4/` | `day4_pytorch.ipynb` -- the same network rebuilt in PyTorch (Dataset/DataLoader, nn.Module, autograd, saved weights) instead of hand-written NumPy |
+| `day5/` | `day5_tokenization.py` -- tokenizes, builds a vocabulary for, encodes, and pads the news headlines; saves the result as the actual tokenized dataset |
 | `data/` | `news_dataset.csv` -- the shared, growing news dataset used from Day 5 onward (Days 1-4 each used their own fixed snapshot, see below) |
 | `scripts/` | `grow_dataset.py` -- re-scrapes all 4 sources and merges any new headlines into `data/news_dataset.csv`, for growing the dataset further in future sessions |
 
@@ -101,6 +102,20 @@ overfitting story as Day 3, framework or not. Also hit a real PyTorch
 gotcha here: forgetting `torch.manual_seed(42)` meant every run gave a
 different accuracy (52%, then 43%, same code) since PyTorch has its own
 separate random number generator that NumPy's seed doesn't control.
+
+## Day 5: Text Representation for Deep Learning
+
+`day5/day5_tokenization.py` switches from bag-of-words (which throws away
+word order) to representing each headline as an ordered sequence of words
+-- what RNN/LSTM/GRU (Day 6) actually need. Every headline gets lowercased
+and split into words, a vocabulary is built from the training set only
+(1417 unique words), each headline is converted into a list of vocabulary
+numbers (with `0` reserved for both padding and unknown/out-of-vocabulary
+words -- a simplification worth knowing about, not a fully correct setup),
+and every sequence is padded or truncated to a fixed length of 20 (based
+on headline lengths ranging 2-24 words). The final tokenized dataset gets
+saved to disk (`train_padded.npy`, `test_padded.npy`, label CSVs, and
+`vocab.json`) as the actual deliverable, ready for Day 6.
 
 ## Growing the dataset (before Day 5)
 
