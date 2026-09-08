@@ -21,6 +21,7 @@ pip install -r requirements.txt
 | `day3/` | `day3_ann.ipynb` -- a full 3-layer ANN (batchnorm, dropout, early stopping, Adam) built from scratch, trained on the real Week 2 news dataset and compared against the classical ML results |
 | `day4/` | `day4_pytorch.ipynb` -- the same network rebuilt in PyTorch (Dataset/DataLoader, nn.Module, autograd, saved weights) instead of hand-written NumPy |
 | `day5/` | `day5_tokenization.py` -- tokenizes, builds a vocabulary for, encodes, and pads the news headlines; saves the result as the actual tokenized dataset |
+| `day6/` | `day6_lstm.py` -- an Embedding + LSTM text classifier built in PyTorch on Day 5's tokenized sequences, saved weights, this closes out Week 3 |
 | `data/` | `news_dataset.csv` -- the shared, growing news dataset used from Day 5 onward (Days 1-4 each used their own fixed snapshot, see below) |
 | `scripts/` | `grow_dataset.py` -- re-scrapes all 4 sources and merges any new headlines into `data/news_dataset.csv`, for growing the dataset further in future sessions |
 
@@ -116,6 +117,24 @@ and every sequence is padded or truncated to a fixed length of 20 (based
 on headline lengths ranging 2-24 words). The final tokenized dataset gets
 saved to disk (`train_padded.npy`, `test_padded.npy`, label CSVs, and
 `vocab.json`) as the actual deliverable, ready for Day 6.
+
+## Day 6: RNN, LSTM, GRU, and BiLSTM
+
+`day6/day6_lstm.py` closes out Week 3 with an actual sequence model --
+built on Day 5's tokenized/padded headlines instead of bag-of-words. Two
+new PyTorch pieces: `nn.Embedding` (turns each word index into a learnable
+dense 32-number vector, instead of one giant sparse vector per headline)
+and `nn.LSTM` (processes the sequence of word vectors one at a time, in
+order, carrying a hidden state forward as memory -- unlike the ANN, which
+saw a whole headline at once with no sense of word order).
+
+Test accuracy came out to 50%, close to Day 4's ANN (52%) and well above
+Day 3's from-scratch version (39%), but still below every classical model
+from Week 2 (61-70%). Expected going in -- RNN-family models are generally
+*more* data-hungry than plain ANNs, not less, so getting roughly comparable
+results to Day 4 rather than notably worse is a reasonable outcome given
+only 222 training rows. This wraps up Week 3's overall deliverable
+(text-based DL project using ANN, RNN, LSTM, GRU, or BiLSTM).
 
 ## Growing the dataset (before Day 5)
 
