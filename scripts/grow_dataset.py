@@ -48,7 +48,7 @@ def scrape_marketscreener(context):
         if url in seen_urls:
             continue
         seen_urls.add(url)
-        title = a.locator("b").inner_text()
+        title = a.locator("b").first.inner_text()  # .first added: a promo ad now has 2 <b> tags in one <a>, breaking strict mode
         results.append({"url": url, "title": title})
     page.close()
     return results
