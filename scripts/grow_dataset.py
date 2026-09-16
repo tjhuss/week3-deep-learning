@@ -5,7 +5,7 @@ CATEGORY_KEYWORDS = {
     "Health": ["fda", "drug", "vaccine", "hospital", "medical", "disease", "patient", "biotech", "cancer", "clinical trial", "health", "pharma", "therapeutics", "biopharma", "surgical", "diagnostics", "pfizer", "moderna", "johnson & johnson", "merck", "abbvie", "amgen", "eli lilly", "bristol myers", "novartis", "roche", "sanofi", "boston scientific", "stryker", "medtronic", "intuitive surgical", "biolife", "dentsply", "neuropace", "gsk", "astrazeneca", "regeneron", "vertex pharmaceuticals"],
     "Energy": ["oil", " gas", "solar", "renewable", "nuclear", "power grid", "lng", "drilling", "energy", "opec", "barrel"],
     "Technology": ["ai ", " ai,", "artificial intelligence", "chip", "semiconductor", "software", " app", "cyber", "robot", "quantum", "tech", "iphone", "cloud", "data center", "ipad", "macbook"],
-    "Politics": ["senate", "congress", "election", "president", "minister", "tariff", "sanctions", " war", "government", "regulation", "ceasefire", "gaza", "ukraine", "fcc"],
+    "Politics": ["senate", "congress", "election", "president", "minister", "tariff", "sanctions", " war", "government", "regulation", "ceasefire", "gaza", "ukraine", "fcc", "trump", "biden", "harris", "democrat", "republican", "gop", "primaries", "primary", "campaign", "supreme court", "white house", "midterm", "impeach", "governor", "ballot", "voters", "capitol"],
     "Markets": ["stock", "shares", "nasdaq", "dow jones", "s&p", "ipo", "etf", "dividend", "futures", "yields", "bond", "gold", "currency", "forex", "crypto", "bitcoin", "index", "rally", "selloff", "rate cut", "fed "],
 }
 
@@ -89,6 +89,32 @@ def scrape_yahoo_finance_healthcare(page):
     return results
 
 
+def scrape_apnews_politics(context):
+    # apnews.com needs a real user-agent to get past bot detection (same issue as marketscreener.com) --
+    # the default headless browser gets served a stripped-down page with no real content at all
+    #
+    # AP News also nests the <a> INSIDE the <h3> (<h3><a href="...">title</a></h3>), the opposite
+    # structure from every other scraper here, which all have the <a> wrapping the heading tag
+    page = context.new_page()
+    page.goto("https://apnews.com/politics", wait_until="domcontentloaded")
+    page.wait_for_timeout(3000)
+    links = page.locator("h3.PagePromo-title a").all()
+
+    seen_urls = set()
+    results = []
+    for a in links:
+        href = a.get_attribute("href")
+        if not href or "/article/" not in href:
+            continue  # skip video/project/non-article links, same page has a mix
+        if href in seen_urls:
+            continue
+        seen_urls.add(href)
+        title = a.inner_text()
+        results.append({"url": href, "title": title})
+    page.close()
+    return results
+
+
 all_rows = []
 
 with sync_playwright() as p:
@@ -106,7 +132,7 @@ with sync_playwright() as p:
 
     browser.close()
 
-    # marketscreener.com needs a real user-agent to bypass bot detection
+    # marketscreener.com and apnews.com both need a real user-agent to bypass bot detection
     browser = p.chromium.launch(headless=False)
     context = browser.new_context(
         user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -114,6 +140,9 @@ with sync_playwright() as p:
     )
     print("Scraping marketscreener.com...")
     all_rows.extend(scrape_marketscreener(context))
+
+    print("Scraping apnews.com politics...")
+    all_rows.extend(scrape_apnews_politics(context))
 
     browser.close()
 
