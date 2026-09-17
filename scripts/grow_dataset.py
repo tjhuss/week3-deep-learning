@@ -89,6 +89,24 @@ def scrape_yahoo_finance_healthcare(page):
     return results
 
 
+def scrape_oilprice(page):
+    page.goto("https://oilprice.com/Latest-Energy-News/World-News/", wait_until="domcontentloaded")
+    articles = page.locator("a:has(h2.categoryArticle__title)").all()
+
+    seen_urls = set()
+    results = []
+    for a in articles:
+        href = a.get_attribute("href")
+        if not href:
+            continue
+        if href in seen_urls:
+            continue
+        seen_urls.add(href)
+        title = a.locator("h2").inner_text()
+        results.append({"url": href, "title": title})
+    return results
+
+
 def scrape_apnews_politics(context):
     # apnews.com needs a real user-agent to get past bot detection (same issue as marketscreener.com) --
     # the default headless browser gets served a stripped-down page with no real content at all
@@ -129,6 +147,9 @@ with sync_playwright() as p:
 
     print("Scraping finance.yahoo.com healthcare sector...")
     all_rows.extend(scrape_yahoo_finance_healthcare(page))
+
+    print("Scraping oilprice.com...")
+    all_rows.extend(scrape_oilprice(page))
 
     browser.close()
 
