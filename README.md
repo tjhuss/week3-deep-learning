@@ -142,22 +142,11 @@ Days 1-4 all used the original 111-row news dataset from Week 2, and
 those notebooks are left exactly as they were built. Starting with Day 5,
 a bigger, shared dataset lives in `data/news_dataset.csv` instead.
 
-`scripts/grow_dataset.py` re-scrapes the original 3 sources (fool.com,
-tradingview.com, marketscreener.com) plus a new one added specifically to
-help the sparsest category, Health: `finance.yahoo.com/sectors/healthcare/`.
-Since news sites fully refresh their front pages, re-running the original
-3 scrapers picked up 155 entirely new headlines with zero URL overlap,
-taking the dataset from 111 to 266 rows. Adding Yahoo Finance's healthcare
-page brought in 12 more (278 total), though only 2 initially classified as
-Health -- most of those headlines reference specific companies (AbbVie,
-Boston Scientific, NeuroPace) rather than medical terminology, which the
-original keyword-based classifier didn't recognize. Adding known
-biotech/pharma/medtech company names to the Health keyword list fixed
-this, bringing Health from 2 up to 12 total examples.
+`scripts/grow_dataset.py` re-scrapes fool.com, tradingview.com, and
+marketscreener.com, plus finance.yahoo.com's healthcare page and
+apnews.com's politics page (both added to fix thin categories), and
+oilprice.com for energy. Run it again any time from inside `scripts/`
+to pull in whatever's new.
 
-Current totals: **278 rows** (Business 109, Markets 88, Technology 49,
-Health 12, Energy 11, Politics 9). Health is still thin and will likely
-remain the hardest category, but this is meant to keep growing over future
-sessions -- the target is ~400 rows before Week 4 starts. Run
-`scripts/grow_dataset.py` again (from inside `scripts/`) any time to pull
-in whatever's new since the last run.
+Current totals: **843 rows** (Business 363, Markets 205, Technology
+119, Politics 56, Energy 56, Health 44).
